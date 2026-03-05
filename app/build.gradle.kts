@@ -63,29 +63,25 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
 
-    // region networking
+    // networking
     implementation(libs.retrofit)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
-    // endregion
 
-    // region Hilt
+    // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    // endregion
 
-    // region Retrofit + Moshi
+    // Retrofit + Moshi
     implementation(libs.retrofit.converter.moshi)
     implementation(libs.moshi)
     ksp(libs.moshi.codegen)
-    // endregion
 
-    // region ViewModel + Lifecycle
+    // ViewModel + Lifecycle
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    // endregion
 
     // Coil
     implementation(libs.coil.compose)
