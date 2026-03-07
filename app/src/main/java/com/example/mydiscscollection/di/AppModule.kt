@@ -1,5 +1,7 @@
 package com.example.mydiscscollection.di
 
+import android.util.Log
+import com.example.mydiscscollection.BuildConfig
 import com.example.mydiscscollection.data.remote.DiscogsApiService
 import com.example.mydiscscollection.data.repository.ArtistRepositoryImpl
 import com.example.mydiscscollection.domain.repository.ArtistRepository
@@ -20,7 +22,8 @@ import javax.inject.Singleton
 object AppModule {
 
     private const val BASE_URL = "https://api.discogs.com/"
-    private const val TOKEN = "TsTKkSqWNrKtYaEiNUrr"
+    private const val CONSUMER_KEY = "TsTKkSqWNrKtYaEiNUrr"
+    private const val CONSUMER_SECRET = "YoSgsLlLBehVrWLJRsXjMFVhjcIYcvhA"
 
     @Provides
     @Singleton
@@ -28,14 +31,23 @@ object AppModule {
         OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Discogs token=$TOKEN")
+                    .addHeader(
+                        "Authorization",
+                        "Discogs key=$CONSUMER_KEY, secret=$CONSUMER_SECRET"
+                    )
                     .addHeader("User-Agent", "DiscogsApp/1.0")
                     .build()
                 chain.proceed(request)
             }
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
+            .addInterceptor(
+                HttpLoggingInterceptor { message -> Log.d("DiscogsApi", message) }.apply {
+                    level = if (BuildConfig.DEBUG) {
+                        HttpLoggingInterceptor.Level.BODY
+                    } else {
+                        HttpLoggingInterceptor.Level.NONE
+                    }
+                }
+            )
             .build()
 
     @Provides
