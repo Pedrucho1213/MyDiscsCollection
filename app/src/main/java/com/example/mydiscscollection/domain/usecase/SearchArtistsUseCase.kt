@@ -7,8 +7,9 @@ import javax.inject.Inject
 class SearchArtistsUseCase @Inject constructor(
     private val repository: ArtistRepository
 ){
-    suspend operator fun invoke(query: String, page: Int = 1): Result<List<Artist>>{
-        if (query.isBlank()) return Result.success(emptyList())
-        return repository.searchArtist(query, page)
-    }
+    suspend operator fun invoke(
+        query: String,
+        page: Int = 1,
+    ): Result<Triple<List<Artist>, Int, Int>> =
+        repository.searchArtists(query, page)
 }

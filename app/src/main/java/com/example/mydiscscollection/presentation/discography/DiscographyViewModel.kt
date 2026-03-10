@@ -29,10 +29,13 @@ class DiscographyViewModel @Inject constructor(
     private fun loadReleases(){
         viewModelScope.launch {
             _uiState.value = DiscographyUiState.Loading
-            getArtistReleases(artistId)
-                .onSuccess{ releases ->
+            getArtistReleases(artistId, page = 1)
+                .onSuccess{ (releases, totalItems, totalPages) ->
                     _uiState.value = DiscographyUiState.Success(
                         releases = releases,
+                        totalItems = totalItems,
+                        currentPage = 1,
+                        hasMore = totalPages > 1,
                         availableYears = releases.mapNotNull { it.year }.distinct().sorted().reversed(),
                         availableGenres = releases.mapNotNull { it.genre }.distinct().sorted(),
                         availableLabels = releases.mapNotNull { it.label }.distinct().sorted()
@@ -40,6 +43,28 @@ class DiscographyViewModel @Inject constructor(
                 }
                 .onFailure {
                     _uiState.value = DiscographyUiState.Error(it.message ?: "Unknown error")
+                }
+        }
+    }
+    fun loadNextPage() {
+        val current = _uiState.value as? DiscographyUiState.Success ?: return
+        if (current.loadingMore || !current.hasMore) return
+
+        viewModelScope.launch {
+            _uiState.value = current.copy(loadingMore = true)
+
+            getArtistReleases(artistId, page = current.currentPage + 1)
+                .onSuccess { (newReleases, _, totalPages) ->
+                    val nextPage = current.currentPage + 1
+                    _uiState.value = current.copy(
+                        releases    = current.releases + newReleases,
+                        currentPage = nextPage,
+                        loadingMore = false,
+                        hasMore     = nextPage < totalPages,
+                    )
+                }
+                .onFailure {
+                    _uiState.value = current.copy(loadingMore = false)
                 }
         }
     }

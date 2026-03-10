@@ -13,7 +13,12 @@ sealed interface DiscographyUiState {
 
         val activeYear: Int? = null,
         val activeGenre: String? = null,
-        val activeLabel: String? = null
+        val activeLabel: String? = null,
+
+        val currentPage: Int = 1,
+        val loadingMore: Boolean = false,
+        val hasMore: Boolean = true,
+        val totalItems: Int = 0
     ) : DiscographyUiState {
         val filteredReleases: List<Release>
             get() = releases.filter { release ->
