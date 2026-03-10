@@ -1,105 +1,105 @@
 # MyDiscsCollection
 
-Aplicación Android (Jetpack Compose) para buscar artistas en Discogs, ver su detalle y explorar su discografía con filtros por año, género y sello.
+Android application built with Jetpack Compose to search for artists on Discogs, view artist details, and explore their discography with year, genre, and label filters.
 
-## Tabla de contenido
+## Table of Contents
 
-1. [Objetivo](#objetivo)
-2. [Funciones principales](#funciones-principales)
-3. [Referencia de diseño](#referencia-de-diseño)
-4. [Stack tecnológico](#stack-tecnológico)
-5. [Arquitectura](#arquitectura)
-6. [Estructura del proyecto](#estructura-del-proyecto)
-7. [Configuración del proyecto](#configuración-del-proyecto)
-8. [Ejecución](#ejecución)
-9. [Pruebas unitarias](#pruebas-unitarias)
-10. [Pruebas UI con Maestro](#pruebas-ui-con-maestro)
-11. [Proceso de análisis y desarrollo](#proceso-de-análisis-y-desarrollo)
-12. [Buenas prácticas, clean code y patrones](#buenas-prácticas-clean-code-y-patrones)
-13. [Decisiones técnicas y trade-offs](#decisiones-técnicas-y-trade-offs)
-14. [Deuda técnica y mejoras recomendadas](#deuda-técnica-y-mejoras-recomendadas)
+1. [Objective](#objective)
+2. [Main Features](#main-features)
+3. [Design Reference](#design-reference)
+4. [Tech Stack](#tech-stack)
+5. [Architecture](#architecture)
+6. [Project Structure](#project-structure)
+7. [Project Setup](#project-setup)
+8. [Running the App](#running-the-app)
+9. [Unit Tests](#unit-tests)
+10. [UI Testing with Maestro](#ui-testing-with-maestro)
+11. [Analysis and Development Process](#analysis-and-development-process)
+12. [Best Practices, Clean Code, and Patterns](#best-practices-clean-code-and-patterns)
+13. [Technical Decisions and Trade-offs](#technical-decisions-and-trade-offs)
+14. [Technical Debt and Recommended Improvements](#technical-debt-and-recommended-improvements)
 15. [Troubleshooting](#troubleshooting)
 
-## Objetivo
+## Objective
 
-Construir una app de catálogo musical enfocada en:
+Build a music catalog application focused on:
 
-- Búsqueda de artistas con paginación.
-- Pantalla de detalle del artista.
-- Pantalla de discografía con filtros combinables.
-- Estados de UI claros: `Loading`, `Success`, `Empty`, `Error`.
+- Artist search with pagination.
+- Artist detail screen.
+- Discography screen with combinable filters.
+- Clear UI states: `Loading`, `Success`, `Empty`, `Error`.
 
-## Funciones principales
+## Main Features
 
-- Búsqueda reactiva con debounce en `SearchViewModel`.
-- Lista de artistas con paginación incremental (infinite scroll).
-- Vista de detalle con biografía, imagen y miembros de banda.
-- Vista de discografía con filtros por año, género y sello.
-- Orden de álbumes de más reciente a más antiguo usando la fecha exacta de lanzamiento cuando Discogs la expone.
-- Skeleton loading y estados de feedback reutilizables.
+- Reactive search with debounce in `SearchViewModel`.
+- Artist list with incremental pagination (infinite scroll).
+- Detail screen with biography, image, and band members.
+- Discography screen with year, genre, and label filters.
+- Albums sorted from newest to oldest using the exact release date when Discogs provides it.
+- Reusable skeleton loading and feedback states.
 
-## Referencia de diseño
+## Design Reference
 
-- Figma público del challenge: [Vew diseño en Figma](https://www.figma.com/design/3hh2ALPGzZeYEVhoedCFR1/Sin-t%C3%ADtulo?node-id=0-1&t=yzQp7trrIzXrSW89-1)
+- Public Figma challenge file: [View design in Figma](https://www.figma.com/design/3hh2ALPGzZeYEVhoedCFR1/Sin-t%C3%ADtulo?node-id=0-1&t=yzQp7trrIzXrSW89-1)
 
-## Stack tecnológico
+## Tech Stack
 
-- **Lenguaje**: Kotlin `2.2.21`
+- **Language**: Kotlin `2.2.21`
 - **UI**: Jetpack Compose + Material 3
-- **Arquitectura UI**: MVVM
-- **DI**: Hilt (`@HiltViewModel`, `@AndroidEntryPoint`, módulos `@InstallIn(SingletonComponent::class)`)
+- **UI Architecture**: MVVM
+- **DI**: Hilt (`@HiltViewModel`, `@AndroidEntryPoint`, modules with `@InstallIn(SingletonComponent::class)`)
 - **Networking**: Retrofit `2.11.0` + OkHttp `4.12.0`
-- **Serialización**: Moshi `1.15.2` + `converter-moshi`
-- **Imágenes**: Coil 3 (`coil-compose`, `coil-network-okhttp`)
-- **Concurrencia**: Kotlin Coroutines + `StateFlow`
-- **Navegación**: Navigation Compose `2.9.7`
+- **Serialization**: Moshi `1.15.2` + `converter-moshi`
+- **Images**: Coil 3 (`coil-compose`, `coil-network-okhttp`)
+- **Concurrency**: Kotlin Coroutines + `StateFlow`
+- **Navigation**: Navigation Compose `2.9.7`
 - **Testing**: JUnit4, MockK, Turbine, `kotlinx-coroutines-test`
 
-Versiones relevantes del proyecto:
+Relevant project versions:
 
 - Android Gradle Plugin: `8.13.2`
 - Gradle Wrapper: `8.13`
 - `compileSdk` / `targetSdk`: `36`
 - `minSdk`: `24`
 
-## Arquitectura
+## Architecture
 
-El proyecto sigue una separación por capas estilo **Clean Architecture + MVVM**.
+The project follows a layered **Clean Architecture + MVVM** approach.
 
 ```mermaid
 flowchart LR
     UI["presentation (Compose + ViewModel)"] --> UC["domain/usecase"]
-    UC --> REPO_IF["domain/repository (contratos)"]
-    REPO_IF --> REPO_IMPL["data/repository (implementación)"]
+    UC --> REPO_IF["domain/repository (contracts)"]
+    REPO_IF --> REPO_IMPL["data/repository (implementation)"]
     REPO_IMPL --> API["data/remote (Retrofit API + DTO)"]
     API --> MAPPER["data/remote/mapper"]
     MAPPER --> DOMAIN_MODEL["domain/model"]
 ```
 
-### Capas
+### Layers
 
 - **presentation**
-  - Pantallas Compose (`SearchScreen`, `ArtistDetailScreen`, `DiscographyScreen`)
-  - `ViewModel` por feature
-  - `UiState` sellados para modelar estados de pantalla
+  - Compose screens (`SearchScreen`, `ArtistDetailScreen`, `DiscographyScreen`)
+  - One `ViewModel` per feature
+  - Sealed `UiState` models to represent screen state
 - **domain**
-  - Entidades de negocio (`Artist`, `ArtistDetail`, `Release`)
-  - Casos de uso (`SearchArtistsUseCase`, `GetArtistDetailUseCase`, `GetArtistReleasesUseCase`)
-  - Contrato de repositorio (`ArtistRepository`)
+  - Business entities (`Artist`, `ArtistDetail`, `Release`)
+  - Use cases (`SearchArtistsUseCase`, `GetArtistDetailUseCase`, `GetArtistReleasesUseCase`)
+  - Repository contract (`ArtistRepository`)
 - **data**
-  - Cliente API (`DiscogsApiService`)
+  - API client (`DiscogsApiService`)
   - DTOs
-  - Mappers DTO -> dominio (`ArtistMapper`)
-  - Implementación del repositorio (`ArtistRepositoryImpl`)
+  - DTO -> domain mappers (`ArtistMapper`)
+  - Repository implementation (`ArtistRepositoryImpl`)
 
-### Razonamiento de arquitectura
+### Architecture Rationale
 
-- Mantener la UI desacoplada de Retrofit/DTOs facilita testeo y cambios de proveedor.
-- Casos de uso explícitos centralizan reglas de negocio por feature.
-- Repository pattern abstrae el origen de datos y mejora mantenibilidad.
-- `StateFlow` + `UiState` sellados evitan estados ambiguos en Compose.
+- Keeping UI decoupled from Retrofit and DTOs makes testing and provider changes easier.
+- Explicit use cases centralize business logic by feature.
+- The repository pattern abstracts the data source and improves maintainability.
+- `StateFlow` + sealed `UiState` models help avoid ambiguous screen states in Compose.
 
-## Estructura del proyecto
+## Project Structure
 
 ```text
 app/src/main/java/com/example/mydiscscollection
@@ -123,121 +123,121 @@ app/src/main/java/com/example/mydiscscollection
 └── ui/theme
 ```
 
-## Configuración del proyecto
+## Project Setup
 
-### Requisitos
+### Requirements
 
-- Android Studio (recomendado: versión reciente estable)
-- JDK 17 para ejecutar Gradle/AGP 8.x
+- Android Studio (latest stable version recommended)
+- JDK 17 to run Gradle / AGP 8.x
 - Android SDK 36
-- Emulador o dispositivo con Android 7.0+ (API 24+)
+- Emulator or device running Android 7.0+ (API 24+)
 
-### Instalación
+### Installation
 
 ```bash
-git clone <URL_DEL_REPO>
+git clone <REPOSITORY_URL>
 cd MyDiscsCollection
 ```
 
-Abrir el proyecto en Android Studio y sincronizar Gradle.
+Open the project in Android Studio and sync Gradle.
 
-### Configuración de API Discogs
+### Discogs API Setup
 
-Estado actual del repo:
+Current repository state:
 
-- Las credenciales de Discogs están definidas en:
+- Discogs credentials are currently defined in:
   - `app/src/main/java/com/example/mydiscscollection/di/AppModule.kt`
 
-Para configurar tus propias credenciales:
+To configure your own credentials:
 
-1. Crea tu app en Discogs y obtén `consumer key` y `consumer secret`.
-2. Reemplaza las constantes del módulo DI por tus valores.
-3. No publiques secretos en git.
+1. Create your app in Discogs and obtain a `consumer key` and `consumer secret`.
+2. Replace the constants in the DI module with your values.
+3. Hardcoded keys for examples and practical tests
 
-Recomendación de seguridad (pendiente de implementar en código):
+Security recommendation (not yet implemented in code):
 
-- Mover secretos a `local.properties` + `buildConfigField`.
-- Consumirlos desde `BuildConfig` en lugar de hardcodearlos.
+- Move secrets to `local.properties` + `buildConfigField`.
+- Read them from `BuildConfig` instead of hardcoding them.
 
-## Ejecución
+## Running the App
 
-### Compilar debug
+### Build debug
 
 ```bash
 ./gradlew assembleDebug
 ```
 
-### Instalar en dispositivo/emulador
+### Install on emulator / device
 
 ```bash
 ./gradlew installDebug
 ```
 
-### Ejecutar desde Android Studio
+### Run from Android Studio
 
-1. Selecciona configuración `app`.
-2. Elige dispositivo.
-3. Run.
+1. Select the `app` run configuration.
+2. Choose a device.
+3. Click Run.
 
-## Pruebas unitarias
+## Unit Tests
 
-Ejecutar tests unitarios del módulo app:
+Run the module unit tests:
 
 ```bash
 ./gradlew testDebugUnitTest
 ```
 
-Cobertura actual (a nivel de tipo de pruebas):
+Current test coverage (by type):
 
-- Casos de uso:
+- Use cases:
   - `SearchArtistsUseCaseTest`
   - `GetArtistReleasesUseCaseTest`
 - Mappers:
   - `ArtistMapperTest`
-  - `ArtistDetailUseCase` (test de mapeo DTO -> dominio)
+  - `ArtistDetailUseCase` (DTO -> domain mapping test)
 
-## Pruebas UI con Maestro
+## UI Testing with Maestro
 
-El repositorio incluye un flujo de Maestro en:
+The repository includes a Maestro flow at:
 
 - `MaestroTests/SearchFlow.yaml`
 
-### Prerrequisitos
+### Prerequisites
 
-- Tener la app instalada en modo debug:
+- Install the app in debug mode:
 
 ```bash
 ./gradlew installDebug
 ```
 
-- Tener Maestro CLI disponible en la máquina.
-- Tener al menos un emulador o dispositivo Android levantado.
+- Have Maestro CLI available on your machine.
+- Have at least one Android emulator or physical device running.
 
-Para listar los devices Android disponibles:
+To list available Android devices:
 
 ```bash
 adb devices
 ```
 
-### Abrir el flujo en Maestro Studio
+### Open the Flow in Maestro Studio
 
-Para revisar o editar visualmente el flujo desde Maestro Studio:
+To inspect or edit the flow visually in Maestro Studio:
 
 ```bash
 maestro --device emulator-5554 studio
 ```
 
-En Maestro Studio puedes seleccionar el dispositivo desde la parte superior si tienes varios conectados, abrir el workspace del proyecto y ejecutar comandos del flujo mientras inspeccionas elementos visualmente.
+In Maestro Studio you can select the device from the top bar if you have multiple devices connected, open the project workspace, and run flow commands while visually inspecting the UI.
 
-### Ejecutar el YAML en un solo device
+### Run the YAML on a Single Device
 
-Para correr el flujo de búsqueda en un device específico:
+To execute the search flow on a specific device:
 
 ```bash
 maestro --device emulator-5554 test MaestroTests/SearchFlow.yaml
 ```
 
-Si quieres guardar artifacts por ejecución:
+If you want to store execution artifacts:
 
 ```bash
 maestro --device emulator-5554 test \
@@ -247,9 +247,9 @@ maestro --device emulator-5554 test \
   MaestroTests/SearchFlow.yaml
 ```
 
-### Ejecutar el mismo flujo en múltiples devices
+### Run the Same Flow on Multiple Devices
 
-Si quieres validar consistencia visual entre varios tamaños o versiones de Android, levanta varios emuladores y ejecútalo por separado sobre cada uno:
+If you want to validate visual consistency across different screen sizes or Android versions, start multiple emulators and run the same flow against each one:
 
 ```bash
 adb devices
@@ -258,136 +258,134 @@ maestro --device emulator-5556 test MaestroTests/SearchFlow.yaml
 maestro --device emulator-5558 test MaestroTests/SearchFlow.yaml
 ```
 
-También puedes ejecutar el folder completo en paralelo si tienes varios devices encendidos:
+You can also execute the full folder in parallel if multiple devices are running:
 
 ```bash
 maestro --shard-all 3 test MaestroTests/
 ```
 
-Si quieres controlar exactamente qué devices usar:
+If you want to explicitly control which devices are used:
 
 ```bash
 maestro --device "emulator-5554,emulator-5556,emulator-5558" --shard-all 3 test MaestroTests/
 ```
 
-### Qué validar para consistencia de diseño
+### What to Validate for Design Consistency
 
-- Estado vacío de búsqueda.
-- Espaciados y alineación del `SearchBar`.
-- Truncamiento de textos largos en artistas y álbumes.
-- Comportamiento del detalle del artista y botón `View Albums`.
-- Presentación del bottom sheet de filtros.
-- Consistencia visual de cards, imágenes y tipografías en pantallas pequeñas, medianas y grandes.
+- Search empty state.
+- `SearchBar` spacing and alignment.
+- Long text truncation in artist and album rows.
+- Artist detail behavior and `View Albums` CTA.
+- Filter bottom sheet presentation.
+- Visual consistency of cards, images, and typography across small, medium, and large screens.
 
-### Sugerencia de matriz local
+### Suggested Local Matrix
 
-Una validación razonable para consistencia visual es correr el mismo flujo al menos en:
+A reasonable local validation matrix for design consistency is to run the same flow on at least:
 
-- Un emulador compacto.
-- Un emulador de tamaño medio.
-- Un emulador de pantalla grande o tablet.
-- Más de una versión de Android si quieres detectar diferencias de rendering o comportamiento del sistema.
+- One compact phone emulator.
+- One medium-size phone emulator.
+- One large screen or tablet emulator.
+- More than one Android version if you want to catch rendering or system behavior differences.
 
-## Proceso de análisis y desarrollo
+## Analysis and Development Process
 
-El proceso de trabajo comenzó con la creación de una cuenta en Discogs y el análisis de los servicios disponibles para identificar qué endpoints y DTOs era necesario mapear de acuerdo con los requerimientos del challenge. A partir de eso, primero armé un MVP en Figma para definir la maquetación general, los componentes, la navegación, los estados y el flujo entre pantallas. Después hice una segunda iteración de diseño para aproximar estilos, jerarquías visuales y apariencia final de cada pantalla.
+The process started with creating a Discogs account and analyzing the available services to determine which endpoints and DTOs were required to satisfy the challenge requirements. From there, I first built an MVP in Figma to define the general layout, components, navigation, states, and screen flow. After that, I made a second design pass to approximate the final styles, visual hierarchy, and screen appearance.
 
-Con el diseño y la estructura más claros, pasé a la implementación técnica. Primero definí el stack y las dependencias de la app buscando un equilibrio entre practicidad, mantenibilidad y el tiempo disponible para resolver el ejercicio. Una vez cerrada esa base, avancé en este orden: componentes reutilizables, cliente de red, definición de endpoints, DTOs, mappers, ViewModels, use cases y finalmente las pantallas. Ese orden me permitió construir el flujo de forma incremental y validar cada pieza antes de conectar la siguiente.
+Once the design and app structure were clearer, I moved into implementation. I first defined the app stack and dependencies, trying to balance practicality, maintainability, and the time available for the exercise. After that baseline was set, I implemented the project in this order: reusable components, networking client, endpoint definitions, DTOs, mappers, ViewModels, use cases, and finally the screens. That order helped build the flow incrementally and validate each layer before wiring the next one.
 
-Luego entré en una fase de pruebas manuales para validar que la aplicación cumpliera con los requerimientos funcionales. En esa revisión aparecieron varios incidentes, especialmente relacionados con IDs repetidos en listas de artistas y releases, por lo que fue necesario ajustar la forma en que se construían las keys dinámicas de los listados en Compose. Más adelante detecté que el ordenamiento de la discografía estaba basado únicamente en `year`, lo cual no cumplía completamente con el requerimiento. Para corregirlo, se agregaron ajustes para considerar la fecha completa (`released`) y dejar `year` como fallback cuando la API no expone una fecha exacta.
+I then moved into a manual testing phase to verify that the application was meeting the functional requirements. During that review, I found several issues, especially related to repeated IDs in artist and release lists, so I had to adjust how dynamic keys were built in Compose lists. Later, I noticed that discography ordering was based only on `year`, which did not fully satisfy the requirement. To fix that, I added support for the full `released` date and kept `year` as a fallback when the API does not expose an exact release date.
 
-Ese ajuste obligó a complementar la información consumiendo metadata adicional del release. Para evitar llamadas innecesarias a la API, la app valida primero la integridad de los datos disponibles y solo consulta metadata cuando algún dato relevante no viene en el response principal, por ejemplo género o fecha exacta de lanzamiento.
+That change required consuming additional release metadata. To avoid unnecessary API calls, the app first validates the integrity of the available data and only requests metadata when a relevant field is missing from the main response, for example genre or the exact release date.
 
-En una fase posterior de barrido técnico detecté que el proyecto no cumplía con el requerimiento mínimo de plataforma, ya que originalmente había sido iniciado con `minSdk 29` por omisión de ese punto del enunciado. Durante el ajuste a `minSdk 24` encontré además que, por accidente, se había incluido una dependencia de Wear que forzaba el proyecto a `minSdk 25`. La corrección consistió en retirar esa librería y ajustar dos resources del launcher para mantener compatibilidad correcta con versiones anteriores del SDK.
+In a later technical review phase, I found that the project was not complying with the minimum platform requirement because it had originally been started with `minSdk 29` after overlooking that bullet in the challenge. During the adjustment to `minSdk 24`, I also found that a Wear dependency had been included by mistake, which forced the project to `minSdk 25`. The fix consisted of removing that library and adjusting two launcher resources to preserve compatibility with earlier SDK versions.
 
-Finalmente, después de estabilizar el flujo funcional y los ajustes técnicos, se incorporaron pruebas unitarias sobre varios puntos críticos de la aplicación para reforzar la confiabilidad de la solución.
+Finally, after stabilizing the functional flow and the technical adjustments, I added unit tests for several critical parts of the application to reinforce the reliability of the solution.
 
-## Buenas prácticas, clean code y patrones
+## Best Practices, Clean Code, and Patterns
 
-Prácticas aplicadas:
+Applied practices:
 
-- Separación de responsabilidades por capa.
-- Inyección de dependencias con Hilt.
-- DTOs separados de modelos de dominio.
-- Mapeo explícito con `ArtistMapper`.
-- Estado de pantalla tipado con `sealed interface`.
-- Manejo de errores con `Result` + `onSuccess`/`onFailure`.
-- Dispatcher inyectado (`@IoDispatcher`) para testabilidad.
+- Separation of responsibilities by layer.
+- Dependency injection with Hilt.
+- DTOs separated from domain models.
+- Explicit mapping with `ArtistMapper`.
+- Typed screen state with `sealed interface`.
+- Error handling with `Result` + `onSuccess` / `onFailure`.
+- Injected dispatcher (`@IoDispatcher`) for better testability.
 
-Patrones utilizados:
+Patterns used:
 
-- **MVVM** en capa de presentación.
-- **Repository Pattern** entre dominio y data.
-- **Use Case Pattern** para orquestar acciones de negocio.
-- **Mapper Pattern** para transformar modelos remotos a dominio.
+- **MVVM** in the presentation layer.
+- **Repository Pattern** between domain and data.
+- **Use Case Pattern** to orchestrate business actions.
+- **Mapper Pattern** to transform remote models into domain models.
 
-## Decisiones técnicas y trade-offs
+## Technical Decisions and Trade-offs
 
-1. `Result<Triple<...>>` para paginación
-- Ventaja: API rápida de implementar.
-- Trade-off: menor legibilidad que una data class dedicada.
+1. `Result<Triple<...>>` for pagination  
+   Advantage: fast to implement.  
+   Trade-off: less readable than a dedicated data class.
 
-2. Fetch adicional de metadata de release para género y fecha exacta
-- Ventaja: mejora completitud cuando `genre` llega vacío y permite ordenar álbumes por `released`, no solo por `year`.
-- Trade-off: más llamadas de red y posible impacto en latencia/rate limits.
+2. Additional metadata fetch for genre and exact release date  
+   Advantage: improves completeness when `genre` is missing and allows album sorting by `released`, not only `year`.  
+   Trade-off: more network calls and possible latency / rate-limit impact.
 
-3. Compose + StateFlow
-- Ventaja: UI reactiva y predecible.
-- Trade-off: requiere disciplina para evitar recomposiciones costosas.
+3. Compose + StateFlow  
+   Advantage: reactive and predictable UI.  
+   Trade-off: requires discipline to avoid expensive recompositions.
 
-4. Hilt como DI principal
-- Ventaja: wiring consistente y escalable.
-- Trade-off: más configuración inicial y tiempos de build algo mayores.
+4. Hilt as the DI solution  
+   Advantage: consistent and scalable dependency wiring.  
+   Trade-off: more initial setup and slightly longer build times.
 
-## Deuda técnica y mejoras recomendadas
+## Technical Debt and Recommended Improvements
 
-- Mover secretos de Discogs fuera del código fuente.
-- Reemplazar `Triple` por modelos explícitos (ej. `PagedResult<T>`).
-- Aumentar cobertura en ViewModels y repositorio (tests de integración con fake API).
-- Añadir cache local (Room) y estrategia offline-first para mejorar resiliencia.
-- Centralizar logging/telemetría para diagnóstico en producción.
-- Definir política de lint estático (Detekt/Ktlint) no bloqueante en fases iniciales y progresiva en CI.
+- Move Discogs secrets out of source code.
+- Replace `Triple` with explicit models such as `PagedResult<T>`.
+- Increase coverage in ViewModels and repository-level tests.
+- Add local cache with Room and move toward an offline-first strategy.
+- Centralize logging / telemetry for easier production diagnostics.
+- Define a progressive static analysis policy with Detekt / Ktlint in CI.
 
 ## Troubleshooting
 
 ### `Unresolved reference 'hiltViewModel'`
 
-Verifica en `app/build.gradle.kts`:
+Check in `app/build.gradle.kts`:
 
-- Plugin Hilt aplicado.
-- Dependencia `androidx.hilt:hilt-navigation-compose`.
-- KSP + compilador de Hilt.
+- Hilt plugin applied.
+- `androidx.hilt:hilt-navigation-compose` dependency present.
+- KSP + Hilt compiler configured.
 
-Y en código:
+And in code:
 
-- `@HiltAndroidApp` en `Application`.
-- `@AndroidEntryPoint` en `MainActivity`.
+- `@HiltAndroidApp` on `Application`.
+- `@AndroidEntryPoint` on `MainActivity`.
 
 ### `Unable to create converter for ... SearchResponseDto`
 
-Verifica:
+Check:
 
-- Dependencia `converter-moshi`.
-- Registro de converter en Retrofit:
+- `converter-moshi` dependency is present.
+- Retrofit registers the converter:
 
 ```kotlin
 .addConverterFactory(MoshiConverterFactory.create(moshi))
 ```
 
-- DTOs compatibles con Moshi.
+- DTOs are compatible with Moshi.
 
-### `Key "..." was already used` en `LazyColumn`
+### `Key "..." was already used` in `LazyColumn`
 
-La key de cada item debe ser única y estable.
+Each item key must be unique and stable.
 
-- Evita usar solo `id` cuando existen duplicados en API.
-- Usa clave compuesta (`id + title + index`) como fallback.
+- Avoid using only `id` when the API can return duplicates.
+- Use a composite key (`id + title + index`) as a fallback.
 
-### Filtro de género sin datos
+### Genre Filter Without Data
 
-En Discogs, algunos releases no traen `genre` en el listado principal.
+In Discogs, some releases do not expose `genre` in the main releases list.
 
-- El repo ya intenta completar género consultando `resource_url`.
-- Si sigue vacío, puede ser ausencia real de metadata en la API.
-
-
+- The repository already tries to complete the genre using `resource_url`.
+- If it is still empty, the API may simply not have metadata for that release.
