@@ -169,10 +169,48 @@ fun SkeletonArtistDetail(
     }
 }
 
+@Composable
+fun SkeletonAlbumItem(
+    modifier: Modifier = Modifier
+){
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .shimmerEffect()
+        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.65f)
+                    .height(16.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .shimmerEffect()
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.45f)
+                    .height(12.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .shimmerEffect()
+            )
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
 private fun ShowSkeletonList() {
     SkeletonListItem()
     SkeletonArtistDetail()
+    SkeletonAlbumItem()
 }
