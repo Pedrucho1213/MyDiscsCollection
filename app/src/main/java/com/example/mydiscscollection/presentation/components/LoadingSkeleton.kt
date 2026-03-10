@@ -46,11 +46,11 @@ fun Modifier.shimmerEffect(): Modifier = composed {
     val transition = rememberInfiniteTransition(label = "shimmer")
     val translateAnim by transition.animateFloat(
         initialValue = 0f,
-        targetValue  = 1000f,
+        targetValue = 1000f,
         animationSpec = infiniteRepeatable(
             animation = tween(
                 durationMillis = 1200,
-                easing         = FastOutSlowInEasing,  // más natural que LinearEasing
+                easing = FastOutSlowInEasing,  // más natural que LinearEasing
             ),
             repeatMode = RepeatMode.Restart,
         ),
@@ -60,11 +60,12 @@ fun Modifier.shimmerEffect(): Modifier = composed {
     background(
         brush = Brush.linearGradient(
             colors = shimmerColors,
-            start  = Offset(translateAnim - 200f, translateAnim - 200f),
-            end    = Offset(translateAnim, translateAnim),
+            start = Offset(translateAnim - 200f, translateAnim - 200f),
+            end = Offset(translateAnim, translateAnim),
         ),
     )
 }
+
 @Composable
 fun SkeletonListItem(
     modifier: Modifier = Modifier
@@ -129,7 +130,7 @@ fun SkeletonArtistDetail(
                     .clip(RoundedCornerShape(4.dp))
                     .shimmerEffect()
             )
-            repeat(3) {index ->
+            repeat(3) { index ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(if (index == 2) 0.6f else 1f)
@@ -149,7 +150,7 @@ fun SkeletonArtistDetail(
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                repeat(3){
+                repeat(3) {
                     Box(
                         modifier = Modifier
                             .width(90.dp)
@@ -176,7 +177,7 @@ fun SkeletonArtistDetail(
 @Composable
 fun SkeletonAlbumItem(
     modifier: Modifier = Modifier
-){
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -214,7 +215,12 @@ fun SkeletonAlbumItem(
 @Preview(showBackground = true)
 @Composable
 private fun ShowSkeletonList() {
-    SkeletonListItem()
-    SkeletonArtistDetail()
-    SkeletonAlbumItem()
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        SkeletonListItem()
+        SkeletonArtistDetail()
+        SkeletonAlbumItem()
+    }
+
 }

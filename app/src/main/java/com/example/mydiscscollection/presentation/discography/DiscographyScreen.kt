@@ -96,7 +96,6 @@ fun DiscographyScreen(
                     onYearSelected = viewModel::applyYearFilter,
                     onGenreSelected = viewModel::applyGenreFilter,
                     onLabelSelected = viewModel::applyLabelFilter,
-                    onClearFilters = viewModel::clearFilters,
                     modifier = Modifier.padding(paddingValues),
                 )
             }
@@ -136,7 +135,6 @@ private fun DiscographyContent(
     onYearSelected: (Int?) -> Unit,
     onGenreSelected: (String?) -> Unit,
     onLabelSelected: (String?) -> Unit,
-    onClearFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val releases = state.filteredReleases
