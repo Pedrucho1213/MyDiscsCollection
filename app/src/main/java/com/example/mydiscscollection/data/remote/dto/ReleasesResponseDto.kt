@@ -1,6 +1,5 @@
 package com.example.mydiscscollection.data.remote.dto
 
-import androidx.compose.ui.graphics.drawscope.Stroke
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -14,6 +13,7 @@ data class ReleasesResponseDto(
 data class ReleaseDto(
     @param:Json(name = "id") val id: Int,
     @param:Json(name = "title") val title: String,
+    @param:Json(name = "resource_url") val resourceUrl: String,
     @param:Json(name = "year") val year: Int?,
     @param:Json(name = "thumb") val thumb: String?,
     @param:Json(name = "role") val role : String?,

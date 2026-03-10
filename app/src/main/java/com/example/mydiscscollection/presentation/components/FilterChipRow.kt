@@ -59,7 +59,7 @@ fun FilterChipRow(
             onClick = { openSheet = FilterType.GENRE },
             label = { Text(activeGenre ?: "GENRE") },
             trailingIcon = if (activeGenre != null) {
-                { Icon(Icons.Default.Close, null, Modifier.clickable { onLabelSelected(null) }) }
+                { Icon(Icons.Default.Close, null, Modifier.clickable { onGenreSelected(null) }) }
             } else null
         )
 

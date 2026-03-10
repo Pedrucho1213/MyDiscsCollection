@@ -70,7 +70,7 @@ fun AlbumListItem(
 
                 if (metaParts.isNotEmpty()){
                     Text(
-                        text = metaParts.joinToString { " . " },
+                        text = metaParts.joinToString(separator = " · "),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,

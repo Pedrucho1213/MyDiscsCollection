@@ -1,58 +1,55 @@
 package com.example.mydiscscollection.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+
+
+val Woodsmoke     = Color(0xFF111318)
+val EbonyClay     = Color(0xFF222731)
+val EbonyClay2    = Color(0xFF2A3040)
+val Mischka       = Color(0xFFE2E2E9)
+val Ghost         = Color(0xFFC3C6CF)
+val AzureBlue     = Color(0xFFA8C7FA)
+val AzureBlueDim  = Color(0xFF004A77)
+val ErrorRed      = Color(0xFFF2B8B8)
+val ErrorRedDim   = Color(0xFF8C1D18)
+val DividerColor  = Color(0xFF2E3447)
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    background          = Woodsmoke,
+    surface             = Woodsmoke,
+    surfaceVariant      = EbonyClay,
+    surfaceContainer    = EbonyClay,
+    surfaceContainerHigh= EbonyClay2,
+
+    primary             = AzureBlue,
+    onPrimary           = Color(0xFF00315C),
+    primaryContainer    = AzureBlueDim,
+    onPrimaryContainer  = Color(0xFFD1E4FF),
+
+    onBackground        = Mischka,
+    onSurface           = Mischka,
+    onSurfaceVariant    = Ghost,
+
+    error               = ErrorRed,
+    onError             = Color(0xFF601410),
+    errorContainer      = ErrorRedDim,
+    onErrorContainer    = Color(0xFFF9DEDC),
+
+    outline             = DividerColor,
+    outlineVariant      = Color(0xFF44474E),
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
 
 @Composable
-fun MyDiscsCollectionTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+fun DiscogsAppTheme(
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        colorScheme = DarkColorScheme,
+        typography  = Typography,
+        content     = content,
     )
 }

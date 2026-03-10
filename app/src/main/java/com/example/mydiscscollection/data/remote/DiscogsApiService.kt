@@ -1,11 +1,13 @@
 package com.example.mydiscscollection.data.remote
 
 import com.example.mydiscscollection.data.remote.dto.ArtistDetailDto
+import com.example.mydiscscollection.data.remote.dto.ReleaseMetadataDto
 import com.example.mydiscscollection.data.remote.dto.ReleasesResponseDto
 import com.example.mydiscscollection.data.remote.dto.SearchResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface DiscogsApiService {
 
@@ -34,5 +36,10 @@ interface DiscogsApiService {
         @Query("sort") sort: String = "year",
         @Query("sort_order") sortOrder: String = "desc"
     ): ReleasesResponseDto
+
+    @GET
+    suspend fun getReleaseMetadata(
+        @Url resourceUrl: String
+    ): ReleaseMetadataDto
 
 }

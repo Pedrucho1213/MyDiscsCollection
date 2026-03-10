@@ -26,41 +26,45 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.mydiscscollection.ui.theme.EbonyClay
 
 @Composable
-fun Modifier.shimmerEffect(): Modifier {
-    val transition = rememberInfiniteTransition(label = "shimmer")
+fun Modifier.shimmerEffect(): Modifier = composed {
+    val shimmerColors = listOf(
+        EbonyClay,
+        Color(0xFF2E3447),
+        EbonyClay,
+    )
 
+    val transition = rememberInfiniteTransition(label = "shimmer")
     val translateAnim by transition.animateFloat(
         initialValue = 0f,
-        targetValue = 1000f,
+        targetValue  = 1000f,
         animationSpec = infiniteRepeatable(
             animation = tween(
                 durationMillis = 1200,
-                easing = FastOutSlowInEasing
+                easing         = FastOutSlowInEasing,  // más natural que LinearEasing
             ),
-            repeatMode = RepeatMode.Restart
+            repeatMode = RepeatMode.Restart,
         ),
-        label = "shimmer_translate"
+        label = "shimmer_translate",
     )
-    return this.background(
+
+    background(
         brush = Brush.linearGradient(
-            colors = listOf(
-                MaterialTheme.colorScheme.surfaceContainer,
-                MaterialTheme.colorScheme.surfaceContainerHigh,
-                MaterialTheme.colorScheme.surfaceContainer
-            ),
-            start = Offset(translateAnim - 200f, 0f),
-            end = Offset(translateAnim, 0f)
+            colors = shimmerColors,
+            start  = Offset(translateAnim - 200f, translateAnim - 200f),
+            end    = Offset(translateAnim, translateAnim),
         ),
     )
 }
-
 @Composable
 fun SkeletonListItem(
     modifier: Modifier = Modifier

@@ -131,22 +131,23 @@ private fun ArtistDetailContent(
         ) {
             Text(
                 text = artist.name,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
 
             if (artist.biography.isNotBlank()){
                 Text(
                     text = artist.biography,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.surfaceVariant
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             if (artist.members.isNotEmpty()){
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Band Members",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),

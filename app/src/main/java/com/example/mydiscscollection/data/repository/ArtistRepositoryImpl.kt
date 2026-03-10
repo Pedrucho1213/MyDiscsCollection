@@ -7,7 +7,10 @@ import com.example.mydiscscollection.domain.model.Artist
 import com.example.mydiscscollection.domain.model.ArtistDetail
 import com.example.mydiscscollection.domain.model.Release
 import com.example.mydiscscollection.domain.repository.ArtistRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -38,9 +41,29 @@ class ArtistRepositoryImpl @Inject constructor(
         artistId: Int,
         page: Int
     ): Result<List<Release>> =
-        runCatching {
-            apiService.getArtistReleases(artistId = artistId, page = page)
-                .releases
-                .map { it.toDomain() }
+        withContext(ioDispatcher) {
+            runCatching {
+                val releaseDtos = apiService.getArtistReleases(
+                    artistId = artistId,
+                    page = page
+                ).releases
+
+                coroutineScope {
+                    releaseDtos
+                        .map { releaseDto ->
+                            async {
+                                val genreFromMetadata = runCatching {
+                                    apiService.getReleaseMetadata(releaseDto.resourceUrl)
+                                        .genres
+                                        ?.firstOrNull()
+                                        ?.takeIf { it.isNotBlank() }
+                                }.getOrNull()
+
+                                releaseDto.toDomain(genreOverride = genreFromMetadata)
+                            }
+                        }
+                        .awaitAll()
+                }
+            }
         }
 }
