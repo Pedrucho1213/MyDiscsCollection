@@ -4,6 +4,7 @@ data class Release(
     val id: Int,
     val title: String,
     val year: Int?,
+    val releasedOn: String? = null,
     val thumbUrl: String?,
     val genre: String?,
     val label: String?,

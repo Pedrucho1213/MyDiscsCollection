@@ -35,10 +35,14 @@ object ArtistMapper {
         isActive = active
     )
 
-    fun ReleaseDto.toDomain(genreOverride: String? = null): Release = Release(
+    fun ReleaseDto.toDomain(
+        genreOverride: String? = null,
+        releasedOnOverride: String? = null
+    ): Release = Release(
         id = id,
         title = title,
         year = year,
+        releasedOn = releasedOnOverride,
         thumbUrl = thumb?.takeIf { it.isNotBlank() },
         genre = (genreOverride ?: genre?.firstOrNull())
             ?.trim()

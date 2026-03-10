@@ -3,6 +3,7 @@ package com.example.mydiscscollection.presentation.discography
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mydiscscollection.domain.model.Release
 import com.example.mydiscscollection.domain.usecase.GetArtistReleasesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,14 +32,15 @@ class DiscographyViewModel @Inject constructor(
             _uiState.value = DiscographyUiState.Loading
             getArtistReleases(artistId, page = 1)
                 .onSuccess{ (releases, totalItems, totalPages) ->
+                    val sortedReleases = releases.sortedByReleaseDateDescending()
                     _uiState.value = DiscographyUiState.Success(
-                        releases = releases,
+                        releases = sortedReleases,
                         totalItems = totalItems,
                         currentPage = 1,
                         hasMore = totalPages > 1,
-                        availableYears = releases.mapNotNull { it.year }.distinct().sorted().reversed(),
-                        availableGenres = releases.mapNotNull { it.genre }.distinct().sorted(),
-                        availableLabels = releases.mapNotNull { it.label }.distinct().sorted()
+                        availableYears = sortedReleases.mapNotNull { it.year }.distinct().sorted().reversed(),
+                        availableGenres = sortedReleases.mapNotNull { it.genre }.distinct().sorted(),
+                        availableLabels = sortedReleases.mapNotNull { it.label }.distinct().sorted()
                     )
                 }
                 .onFailure {
@@ -56,7 +58,8 @@ class DiscographyViewModel @Inject constructor(
             getArtistReleases(artistId, page = current.currentPage + 1)
                 .onSuccess { (newReleases, _, totalPages) ->
                     val nextPage = current.currentPage + 1
-                    val mergedReleases = current.releases + newReleases
+                    val mergedReleases = (current.releases + newReleases)
+                        .sortedByReleaseDateDescending()
                     _uiState.value = current.copy(
                         releases = mergedReleases,
                         currentPage = nextPage,
@@ -96,4 +99,23 @@ class DiscographyViewModel @Inject constructor(
     fun retry(){
         loadReleases()
     }
+}
+
+private fun List<Release>.sortedByReleaseDateDescending(): List<Release> =
+    sortedWith(
+        compareByDescending<Release> { it.releaseSortKey() }
+            .thenByDescending { it.title }
+    )
+
+private fun Release.releaseSortKey(): Long {
+    val parts = releasedOn
+        ?.split("-")
+        ?.map { value -> value.toIntOrNull() ?: 0 }
+        .orEmpty()
+
+    val yearPart = parts.getOrNull(0) ?: (year ?: 0)
+    val monthPart = parts.getOrNull(1) ?: 0
+    val dayPart = parts.getOrNull(2) ?: 0
+
+    return (yearPart.toLong() * 10_000L) + (monthPart.toLong() * 100L) + dayPart.toLong()
 }

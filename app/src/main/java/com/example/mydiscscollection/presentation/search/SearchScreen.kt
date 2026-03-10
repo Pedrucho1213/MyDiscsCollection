@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -57,17 +58,31 @@ fun SearchScreen(
 
     Scaffold(
         topBar = {
-            SearchTopBar(
-                query = query,
-                onQueryChanged = { newQuery ->
-                    query = newQuery
-                    viewModel.onQueryChanged(newQuery)
-                },
-                onClearQuery = {
-                    query = ""
-                    viewModel.onQueryChanged("")
+
+            Column {
+                SearchTopBar(
+                    query = query,
+                    onQueryChanged = { newQuery ->
+                        query = newQuery
+                        viewModel.onQueryChanged(newQuery)
+                    },
+                    onClearQuery = {
+                        query = ""
+                        viewModel.onQueryChanged("")
+                    }
+                )
+                if (uiState is SearchUiState.Loading){
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 }
-            )
+            }
+
+
         }
     ) { paddingValues ->
 

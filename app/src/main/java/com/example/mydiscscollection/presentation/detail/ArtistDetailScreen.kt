@@ -170,7 +170,7 @@ private fun ArtistDetailContent(
                 Icon(
                     imageVector = Icons.Default.Album,
                     contentDescription = null,
-                    modifier = Modifier.size(8.dp)
+                    modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(

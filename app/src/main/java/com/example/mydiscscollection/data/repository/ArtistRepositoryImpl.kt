@@ -56,19 +56,24 @@ class ArtistRepositoryImpl @Inject constructor(
             val releases = coroutineScope {
                 response.releases.map { releaseDto ->
                     async {
+                        val metadata = runCatching {
+                            apiService.getReleaseMetadata(releaseDto.resourceUrl)
+                        }.getOrNull()
+
                         val baseGenre = releaseDto.genre?.firstOrNull()?.takeIf { it.isNotBlank() }
                         val genreFromMetadata = if (baseGenre == null) {
-                            runCatching {
-                                apiService.getReleaseMetadata(releaseDto.resourceUrl)
-                                    .genres
-                                    ?.firstOrNull()
-                                    ?.takeIf { it.isNotBlank() }
-                            }.getOrNull()
+                            metadata
+                                ?.genres
+                                ?.firstOrNull()
+                                ?.takeIf { it.isNotBlank() }
                         } else {
                             null
                         }
 
-                        releaseDto.toDomain(genreOverride = genreFromMetadata)
+                        releaseDto.toDomain(
+                            genreOverride = genreFromMetadata,
+                            releasedOnOverride = metadata?.released
+                        )
                     }
                 }.awaitAll()
             }
