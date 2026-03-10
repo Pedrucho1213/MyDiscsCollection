@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mydiscscollection.presentation.components.ArtistListItem
-import com.example.mydiscscollection.presentation.components.EmptyState
+import com.example.mydiscscollection.presentation.components.FeedbackState
 import com.example.mydiscscollection.presentation.components.FeedbackStateType
 import com.example.mydiscscollection.presentation.components.SearchTopBar
 import com.example.mydiscscollection.presentation.components.SkeletonListItem
@@ -54,7 +54,7 @@ fun SearchScreen(
 
         when (val state = uiState) {
             is SearchUiState.Idle -> {
-                EmptyState(
+                FeedbackState(
                     type = FeedbackStateType.Empty(
                         icon = Icons.Default.MusicNote,
                         title = "Discover Artists",
@@ -96,7 +96,7 @@ fun SearchScreen(
                 }
             }
             is SearchUiState.Empty -> {
-                EmptyState(
+                FeedbackState(
                     type = FeedbackStateType.Empty(
                         icon = Icons.Default.SearchOff,
                         title = "No artists found",
@@ -106,7 +106,7 @@ fun SearchScreen(
                 )
             }
             is SearchUiState.Error -> {
-                EmptyState(
+                FeedbackState(
                     type = FeedbackStateType.Error(
                         title = "Failed to load artists",
                         description = state.message,

@@ -41,7 +41,7 @@ sealed class FeedbackStateType{
     ): FeedbackStateType()
 }
 @Composable
-fun EmptyState(
+fun FeedbackState(
   type: FeedbackStateType,
   modifier: Modifier = Modifier
 ){
