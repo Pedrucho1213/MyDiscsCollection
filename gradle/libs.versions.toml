@@ -21,6 +21,8 @@ moshi = "1.15.2"
 composeMaterial3 = "1.5.6"
 navigationRuntimeKtx = "2.9.7"
 navigationCompose = "2.9.7"
+junitJunit = "4.13.2"
+junitJunitVersion = "4.12"
 
 
 
@@ -61,6 +63,8 @@ moshi-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", v
 compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeMaterial3" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
+junit-junit2 = { group = "junit", name = "junit", version.ref = "junitJunitVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
