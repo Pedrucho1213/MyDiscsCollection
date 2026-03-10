@@ -56,11 +56,15 @@ class DiscographyViewModel @Inject constructor(
             getArtistReleases(artistId, page = current.currentPage + 1)
                 .onSuccess { (newReleases, _, totalPages) ->
                     val nextPage = current.currentPage + 1
+                    val mergedReleases = current.releases + newReleases
                     _uiState.value = current.copy(
-                        releases    = current.releases + newReleases,
+                        releases = mergedReleases,
                         currentPage = nextPage,
                         loadingMore = false,
-                        hasMore     = nextPage < totalPages,
+                        hasMore = nextPage < totalPages,
+                        availableYears = mergedReleases.mapNotNull { it.year }.distinct().sorted().reversed(),
+                        availableGenres = mergedReleases.mapNotNull { it.genre }.distinct().sorted(),
+                        availableLabels = mergedReleases.mapNotNull { it.label }.distinct().sorted(),
                     )
                 }
                 .onFailure {

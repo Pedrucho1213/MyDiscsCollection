@@ -8,6 +8,10 @@ import com.example.mydiscscollection.domain.model.ArtistDetail
 import com.example.mydiscscollection.domain.model.Release
 import com.example.mydiscscollection.domain.repository.ArtistRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ArtistRepositoryImpl @Inject constructor(
@@ -41,16 +45,39 @@ class ArtistRepositoryImpl @Inject constructor(
     override suspend fun getArtistReleases(
         artistId: Int,
         page: Int,
-    ): Result<Triple<List<Release>, Int, Int>> = runCatching {
-        val response = apiService.getArtistReleases(
-            artistId = artistId,
-            page     = page,
-            perPage  = 30,
-        )
-        Triple(
-            response.releases.map { it.toDomain() },
-            response.pagination.items,
-            response.pagination.pages,
-        )
+    ): Result<Triple<List<Release>, Int, Int>> = withContext(ioDispatcher) {
+        runCatching {
+            val response = apiService.getArtistReleases(
+                artistId = artistId,
+                page = page,
+                perPage = 30,
+            )
+
+            val releases = coroutineScope {
+                response.releases.map { releaseDto ->
+                    async {
+                        val baseGenre = releaseDto.genre?.firstOrNull()?.takeIf { it.isNotBlank() }
+                        val genreFromMetadata = if (baseGenre == null) {
+                            runCatching {
+                                apiService.getReleaseMetadata(releaseDto.resourceUrl)
+                                    .genres
+                                    ?.firstOrNull()
+                                    ?.takeIf { it.isNotBlank() }
+                            }.getOrNull()
+                        } else {
+                            null
+                        }
+
+                        releaseDto.toDomain(genreOverride = genreFromMetadata)
+                    }
+                }.awaitAll()
+            }
+
+            Triple(
+                releases,
+                response.pagination.items,
+                response.pagination.pages,
+            )
+        }
     }
 }

@@ -40,7 +40,9 @@ object ArtistMapper {
         title = title,
         year = year,
         thumbUrl = thumb?.takeIf { it.isNotBlank() },
-        genre = genreOverride ?: genre?.firstOrNull(),
+        genre = (genreOverride ?: genre?.firstOrNull())
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() },
         label = label,
         format = formats,
         role = role
