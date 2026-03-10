@@ -1,0 +1,34 @@
+appId: com.example.mydiscscollection
+---
+- launchApp:
+    clearState: true
+
+- tapOn: Search
+- inputText: Vicente Fernandez
+- hideKeyboard
+- assertVisible: Vicente Fernandez
+- tapOn:
+    text: Vicente Fernandez
+    index: 2
+- assertVisible: Vicente Fernandez
+- scrollUntilVisible:
+    element: View Albums
+- tapOn: View Albums
+- assertVisible: Discography
+- tapOn: Year
+- assertVisible: Filter by year
+- tapOn: "2023"
+- assertVisible:
+    text: Le Canta A Los Grandes Compositores De México
+    index: 1
+- tapOn: Back
+- swipe:
+    direction: DOWN
+- back
+- assertVisible: Search artists...
+
+
+
+
+
+

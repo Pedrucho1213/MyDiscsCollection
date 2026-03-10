@@ -13,11 +13,12 @@ Aplicación Android (Jetpack Compose) para buscar artistas en Discogs, ver su de
 7. [Configuración del proyecto](#configuración-del-proyecto)
 8. [Ejecución](#ejecución)
 9. [Pruebas unitarias](#pruebas-unitarias)
-10. [Proceso de análisis y desarrollo](#proceso-de-análisis-y-desarrollo)
-11. [Buenas prácticas, clean code y patrones](#buenas-prácticas-clean-code-y-patrones)
-12. [Decisiones técnicas y trade-offs](#decisiones-técnicas-y-trade-offs)
-13. [Deuda técnica y mejoras recomendadas](#deuda-técnica-y-mejoras-recomendadas)
-14. [Troubleshooting](#troubleshooting)
+10. [Pruebas UI con Maestro](#pruebas-ui-con-maestro)
+11. [Proceso de análisis y desarrollo](#proceso-de-análisis-y-desarrollo)
+12. [Buenas prácticas, clean code y patrones](#buenas-prácticas-clean-code-y-patrones)
+13. [Decisiones técnicas y trade-offs](#decisiones-técnicas-y-trade-offs)
+14. [Deuda técnica y mejoras recomendadas](#deuda-técnica-y-mejoras-recomendadas)
+15. [Troubleshooting](#troubleshooting)
 
 ## Objetivo
 
@@ -195,6 +196,98 @@ Cobertura actual (a nivel de tipo de pruebas):
   - `ArtistMapperTest`
   - `ArtistDetailUseCase` (test de mapeo DTO -> dominio)
 
+## Pruebas UI con Maestro
+
+El repositorio incluye un flujo de Maestro en:
+
+- `MaestroTests/SearchFlow.yaml`
+
+### Prerrequisitos
+
+- Tener la app instalada en modo debug:
+
+```bash
+./gradlew installDebug
+```
+
+- Tener Maestro CLI disponible en la máquina.
+- Tener al menos un emulador o dispositivo Android levantado.
+
+Para listar los devices Android disponibles:
+
+```bash
+adb devices
+```
+
+### Abrir el flujo en Maestro Studio
+
+Para revisar o editar visualmente el flujo desde Maestro Studio:
+
+```bash
+maestro --device emulator-5554 studio
+```
+
+En Maestro Studio puedes seleccionar el dispositivo desde la parte superior si tienes varios conectados, abrir el workspace del proyecto y ejecutar comandos del flujo mientras inspeccionas elementos visualmente.
+
+### Ejecutar el YAML en un solo device
+
+Para correr el flujo de búsqueda en un device específico:
+
+```bash
+maestro --device emulator-5554 test MaestroTests/SearchFlow.yaml
+```
+
+Si quieres guardar artifacts por ejecución:
+
+```bash
+maestro --device emulator-5554 test \
+  --format html \
+  --output build/maestro/report-emulator-5554.html \
+  --test-output-dir build/maestro/emulator-5554 \
+  MaestroTests/SearchFlow.yaml
+```
+
+### Ejecutar el mismo flujo en múltiples devices
+
+Si quieres validar consistencia visual entre varios tamaños o versiones de Android, levanta varios emuladores y ejecútalo por separado sobre cada uno:
+
+```bash
+adb devices
+maestro --device emulator-5554 test MaestroTests/SearchFlow.yaml
+maestro --device emulator-5556 test MaestroTests/SearchFlow.yaml
+maestro --device emulator-5558 test MaestroTests/SearchFlow.yaml
+```
+
+También puedes ejecutar el folder completo en paralelo si tienes varios devices encendidos:
+
+```bash
+maestro --shard-all 3 test MaestroTests/
+```
+
+Si quieres controlar exactamente qué devices usar:
+
+```bash
+maestro --device "emulator-5554,emulator-5556,emulator-5558" --shard-all 3 test MaestroTests/
+```
+
+### Qué validar para consistencia de diseño
+
+- Estado vacío de búsqueda.
+- Espaciados y alineación del `SearchBar`.
+- Truncamiento de textos largos en artistas y álbumes.
+- Comportamiento del detalle del artista y botón `View Albums`.
+- Presentación del bottom sheet de filtros.
+- Consistencia visual de cards, imágenes y tipografías en pantallas pequeñas, medianas y grandes.
+
+### Sugerencia de matriz local
+
+Una validación razonable para consistencia visual es correr el mismo flujo al menos en:
+
+- Un emulador compacto.
+- Un emulador de tamaño medio.
+- Un emulador de pantalla grande o tablet.
+- Más de una versión de Android si quieres detectar diferencias de rendering o comportamiento del sistema.
+
 ## Proceso de análisis y desarrollo
 
 El proceso de trabajo comenzó con la creación de una cuenta en Discogs y el análisis de los servicios disponibles para identificar qué endpoints y DTOs era necesario mapear de acuerdo con los requerimientos del challenge. A partir de eso, primero armé un MVP en Figma para definir la maquetación general, los componentes, la navegación, los estados y el flujo entre pantallas. Después hice una segunda iteración de diseño para aproximar estilos, jerarquías visuales y apariencia final de cada pantalla.
@@ -296,7 +389,5 @@ En Discogs, algunos releases no traen `genre` en el listado principal.
 
 - El repo ya intenta completar género consultando `resource_url`.
 - Si sigue vacío, puede ser ausencia real de metadata en la API.
-
-
 
 
